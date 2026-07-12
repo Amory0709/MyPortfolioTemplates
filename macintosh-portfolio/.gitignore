@@ -1,0 +1,19 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Local dev
+*.bak
+*.log
+
+# WIP files (kept locally, not for repo)
+preview*.html
+preview_v*.html
+snap_*.html
+floppy_palette.html
+floppy_zoom.html

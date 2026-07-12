@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio · Macintosh 128K</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      background: #f5f5f5;
+      color: #111;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Inter", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+
+    /* ---- Header ---- */
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 28px 40px 0;
+      position: relative;
+      z-index: 5;
+    }
+    .brand {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1;
+      color: #111;
+    }
+    .brand-sub {
+      font-size: 12px;
+      font-weight: 400;
+      color: #888;
+      margin-top: 4px;
+      letter-spacing: 0.02em;
+    }
+    .nav {
+      display: flex;
+      gap: 36px;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #444;
+      margin-top: 6px;
+    }
+    .nav a { transition: color 0.2s; }
+    .nav a:hover { color: #000; }
+    .socials {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      color: #555;
+    }
+    .socials a { display: inline-flex; align-items: center; }
+    .socials svg { width: 18px; height: 18px; }
+
+    /* ---- Hero (3D canvas) ---- */
+    .hero {
+      position: relative;
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 30px 40px 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .hero-canvas-wrap {
+      width: 100%;
+      max-width: 720px;
+      aspect-ratio: 1280 / 800;
+      position: relative;
+      filter: drop-shadow(0 30px 60px rgba(0,0,0,0.10));
+    }
+    .hero-3d {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+    .hero-3d:active { cursor: grabbing; }
+
+    /* ---- Floppy row (3D canvases) ---- */
+    .floppy-row {
+      position: relative;
+      width: 100%;
+      max-width: 1280px;
+      margin: -20px auto 0;
+      padding: 0 40px 60px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 18px;
+      align-items: end;
+      z-index: 4;
+    }
+    .floppy-card {
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(.4,0,.2,1), filter 0.35s;
+      position: relative;
+      outline: none;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      filter: drop-shadow(0 12px 30px rgba(0,0,0,0.10));
+    }
+    .floppy-3d {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .floppy-card:hover, .floppy-card:focus-visible, .floppy-card.active {
+      transform: translateY(-14px);
+      filter: drop-shadow(0 28px 50px rgba(0,0,0,0.20));
+    }
+
+    /* ---- Project side panel (slides out on hover) ---- */
+    .side-panel {
+      position: fixed;
+      top: 50%;
+      right: 36px;
+      transform: translateY(-50%) translateX(20px);
+      width: 360px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
+      padding: 28px 28px 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.35s cubic-bezier(.4,0,.2,1);
+      z-index: 10;
+    }
+    .side-panel.visible {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+      pointer-events: auto;
+    }
+    .side-cover {
+      width: calc(100% + 56px);
+      margin: -28px -28px 18px;
+      height: 180px;
+      border-radius: 14px 14px 0 0;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .side-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .side-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #111;
+      margin: 0 0 10px;
+    }
+    .side-desc {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #444;
+      margin: 0 0 18px;
+    }
+    .side-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #111;
+      border-top: 1px solid #eee;
+      padding-top: 14px;
+      width: 100%;
+      transition: color 0.2s;
+    }
+    .side-link:hover { color: #555; }
+    .side-link svg { margin-left: auto; }
+
+    /* ---- Footer ---- */
+    .footer {
+      border-top: 1px solid #e5e5e5;
+      padding: 18px 40px;
+      font-size: 11px;
+      color: #888;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer a { color: #555; text-decoration: underline; }
+    .footer .credit-block { display: flex; flex-direction: column; gap: 2px; max-width: 70%; }
+    .footer .credit-block span { line-height: 1.5; }
+
+    /* ---- Loading fallback (if WebGL unavailable) ---- */
+    .no-webgl-fallback {
+      display: none;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #aaa;
+      background: transparent;
+    }
+    .no-webgl .no-webgl-fallback { display: flex; }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 900px) {
+      .header { padding: 20px 24px 0; }
+      .nav { gap: 20px; font-size: 12px; }
+      .hero { padding: 24px 24px 0; }
+      .floppy-row { padding: 0 16px 40px; gap: 10px; margin-top: -10px; }
+      .side-panel { right: 16px; left: 16px; width: auto; }
+    }
+    @media (max-width: 600px) {
+      .socials { display: none; }
+      .brand-sub { display: none; }
+      .floppy-row { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div>
+      <div class="brand">Seaseahan</div>
+      <div class="brand-sub">Designer & Developer</div>
+    </div>
+    <nav class="nav" aria-label="Main">
+      <a href="#about">About</a>
+      <a href="#work">Work</a>
+      <a href="#services">Services</a>
+      <a href="#blog">Blog</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="socials" aria-label="Social links">
+      <a href="https://github.com/Amory0709" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2.16c-3.2.69-3.87-1.37-3.87-1.37-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.34.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.73.81 1.18 1.84 1.18 3.1 0 4.42-2.7 5.39-5.27 5.68.41.36.78 1.07.78 2.16v3.2c0 .31.21.67.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+      </a>
+      <a href="https://linkedin.com/in/seaseahan" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.72v20.55C0 23.23.79 24 1.77 24h20.45c.98 0 1.77-.77 1.77-1.73V1.72C24 .77 23.21 0 22.23 0z"/></svg>
+      </a>
+      <a href="mailto:Amory0709@users.noreply.github.com" aria-label="Email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9 6 9-6M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <section class="hero" aria-label="Macintosh 128K hero">
+    <div class="hero-canvas-wrap">
+      <canvas class="hero-3d" id="hero3d" aria-label="3D Macintosh 128K"></canvas>
+      <div class="no-webgl-fallback">WebGL unavailable — please enable hardware acceleration</div>
+    </div>
+  </section>
+
+  <section class="floppy-row" id="work" aria-label="Project floppies">
+
+    <button class="floppy-card" data-project="0" data-color="red" aria-label="Sound of Humanity">
+      <canvas class="floppy-3d" data-floppy="0" aria-label="Sound of Humanity 3D floppy"></canvas>
+    </button>
+
+    <button class="floppy-card" data-project="1" data-color="orange" aria-label="Electoral Map">
+      <canvas class="floppy-3d" data-floppy="1" aria-label="Electoral Map 3D floppy"></canvas>
+    </button>
+
+    <button class="floppy-card" data-project="2" data-color="yellow" aria-label="BLUEbikes Availability">
+      <canvas class="floppy-3d" data-floppy="2" aria-label="BLUEbikes 3D floppy"></canvas>
+    </button>
+
+    <button class="floppy-card" data-project="3" data-color="green" aria-label="3D Asset Editor">
+      <canvas class="floppy-3d" data-floppy="3" aria-label="3D Asset Editor 3D floppy"></canvas>
+    </button>
+
+    <button class="floppy-card" data-project="4" data-color="blue" aria-label="MeshBVH X-Ray">
+      <canvas class="floppy-3d" data-floppy="4" aria-label="MeshBVH X-Ray 3D floppy"></canvas>
+    </button>
+
+  </section>
+
+  <aside class="side-panel" id="sidePanel" aria-live="polite" aria-hidden="true">
+    <div class="side-cover" id="sideCover"></div>
+    <div class="side-label">Featured Project</div>
+    <h3 class="side-title" id="sideTitle">—</h3>
+    <p class="side-desc" id="sideDesc">—</p>
+    <a class="side-link" id="sideLink" href="#">
+      View Project
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg>
+    </a>
+  </aside>
+
+  <footer class="footer">
+    <div class="credit-block">
+      <span><b>Mac:</b> "Macintosh 128K Computer (1984)" by <a href="https://skfb.ly/6SLnE" target="_blank" rel="noopener">Daz</a> · <a href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></span>
+      <span><b>Floppy:</b> "Floppy Disk 3.5&quot;" by <a href="https://skfb.ly/Jnrs" target="_blank" rel="noopener">Kyan0s</a> · <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></span>
+    </div>
+    <div>© Seaseahan · Respect to Steve Jobs</div>
+  </footer>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+    /* ---------- Project data (drives side panel + floppy order) ---------- */
+    const projects = [
+      { title: 'Sound of Humanity',      color: 'red',    desc: 'A real-time audio-reactive visualization of human voices from around the world. WebGL fragment shaders pulse with the rhythm of submitted recordings.', cover: 'linear-gradient(135deg, #ff8a65 0%, #ff5252 50%, #b71c1c 100%)', link: 'https://amory0709.github.io/datavis/soundofhumanity/' },
+      { title: 'Electoral Map',          color: 'orange', desc: 'Interactive U.S. electoral map with county-level drill-down, historical comparisons, and demographic overlays. Built with D3 + TopoJSON.',                            cover: 'linear-gradient(135deg, #ffb74d 0%, #ff9800 50%, #e65100 100%)', link: 'https://amory0709.github.io/datavis/Electoral/' },
+      { title: 'BLUEbikes Availability', color: 'yellow', desc: 'Live bike-share station availability across Greater Boston. Auto-refreshing station map with predictive availability based on time-of-day patterns.',           cover: 'linear-gradient(135deg, #fff176 0%, #fdd835 50%, #f9a825 100%)', link: 'https://amory0709.github.io/datavis/BLUEbikes/' },
+      { title: '3D Asset Editor',        color: 'green',  desc: 'Browser-based mesh editor with collision authoring, Gaussian Splatting support, and direct export to glTF. React Three Fiber + zustand.',                      cover: 'linear-gradient(135deg, #aed581 0%, #7cb342 50%, #33691e 100%)', link: 'https://amory0709.github.io/3d-editor/' },
+      { title: 'MeshBVH X-Ray',          color: 'blue',   desc: 'Cross-section viewer for massive 3D meshes using BVH-accelerated raycasting. Slices through millions of triangles in real time.',                              cover: 'linear-gradient(135deg, #64b5f6 0%, #1e88e5 50%, #0d47a1 100%)', link: 'https://amory0709.github.io/three-mesh-bvh-xray/' }
+    ];
+
+    /* ---------- 3D infrastructure (shared) ---------- */
+    const pmremCache = new WeakMap(); // renderer → environment texture
+
+    function getEnv(renderer) {
+      if (!pmremCache.has(renderer)) {
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+        pmremCache.set(renderer, env);
+        pmrem.dispose();
+      }
+      return pmremCache.get(renderer);
+    }
+
+    function makeRenderer(canvas) {
+      const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      r.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      r.outputColorSpace = THREE.SRGBColorSpace;
+      r.toneMapping = THREE.ACESFilmicToneMapping;
+      r.toneMappingExposure = 1.05;
+      return r;
+    }
+
+    function makeScene(renderer) {
+      const scene = new THREE.Scene();
+      // No scene.background → transparent canvas → page #f5f5f5 shows through (no white squares)
+      scene.environment = getEnv(renderer);
+      scene.environmentIntensity = 0.55;
+
+      const key = new THREE.DirectionalLight(0xffffff, 2.2);
+      key.position.set(1.6, 2.2, 1.6);
+      scene.add(key);
+      const fill = new THREE.DirectionalLight(0xc8d8ff, 0.55);
+      fill.position.set(-1.6, 1.0, 1.2);
+      scene.add(fill);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+      return scene;
+    }
+
+    /**
+     * ModelView — render one GLB in a transparent canvas with cursor parallax + idle motion.
+     * opts: { glb, fov, cam, fit, idleSpin, parallax, hoverYawMul, modelY }
+     */
+    class ModelView {
+      constructor(canvas, opts) {
+        this.canvas = canvas;
+        this.opts = Object.assign({
+          glb: '', fov: 36, cam: [1.0, 0.6, 1.2], fit: 0.4,
+          idleSpin: 0.15, parallax: 0.18, hoverYawMul: 1.0, modelY: 0
+        }, opts);
+        this.targetYaw = 0;
+        this.targetPitch = 0;
+        this.yaw = 0;
+        this.pitch = 0;
+        this.idlePhase = Math.random() * Math.PI * 2;
+        this.hovered = false;
+        this.dpr = Math.min(window.devicePixelRatio, 2);
+        this._installed = false;
+
+        try {
+          this.renderer = makeRenderer(canvas);
+          this.scene = makeScene(this.renderer);
+        } catch (e) {
+          console.warn('WebGL init failed', e);
+          canvas.parentElement?.classList.add('no-webgl');
+          return;
+        }
+
+        const { w, h } = this._size();
+        this.renderer.setSize(w, h, false);
+
+        this.camera = new THREE.PerspectiveCamera(this.opts.fov, w / h, 0.05, 50);
+        this.camera.position.set(...this.opts.cam);
+        this.camera.lookAt(0, this.opts.modelY, 0);
+
+        this.modelRoot = new THREE.Group();
+        this.scene.add(this.modelRoot);
+
+        this._loadModel();
+
+        canvas.addEventListener('mousemove', (e) => this._onMouseMove(e));
+        canvas.addEventListener('mouseleave', () => this._onMouseLeave());
+        canvas.addEventListener('mouseenter', () => this._onMouseEnter());
+        canvas.addEventListener('touchmove', (e) => this._onTouchMove(e), { passive: true });
+        canvas.addEventListener('touchend', () => this._onMouseLeave());
+
+        this._ro = new ResizeObserver(() => this._resize());
+        this._ro.observe(canvas);
+        this._raf = requestAnimationFrame(() => this._tick());
+      }
+
+      _size() {
+        const w = this.canvas.clientWidth || 600;
+        const h = this.canvas.clientHeight || 400;
+        return { w, h };
+      }
+
+      _resize() {
+        const { w, h } = this._size();
+        this.renderer.setSize(w, h, false);
+        this.camera.aspect = w / h;
+        this.camera.updateProjectionMatrix();
+      }
+
+      setHovered(h) {
+        this.hovered = h;
+      }
+
+      _onMouseEnter() { this.hovered = true; }
+      _onMouseLeave() {
+        this.hovered = false;
+        this.targetYaw = 0;
+        this.targetPitch = 0;
+      }
+      _onMouseMove(e) {
+        const r = this.canvas.getBoundingClientRect();
+        const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+        const ny = ((e.clientY - r.top) / r.height) * 2 - 1;
+        this.targetYaw = -nx * this.opts.parallax * Math.PI;
+        this.targetPitch = ny * this.opts.parallax * Math.PI * 0.5;
+      }
+      _onTouchMove(e) {
+        const t = e.touches[0]; if (!t) return;
+        const fake = { clientX: t.clientX, clientY: t.clientY };
+        this._onMouseMove(fake);
+      }
+
+      _loadModel() {
+        const loader = new GLTFLoader();
+        loader.load(
+          this.opts.glb,
+          (gltf) => {
+            const obj = gltf.scene;
+            obj.traverse((o) => {
+              if (o.isMesh) {
+                o.castShadow = false;
+                o.receiveShadow = false;
+                if (o.material) {
+                  // Slight roughness boost for readable highlights on light bg
+                  if (o.material.roughness !== undefined && o.material.roughness < 0.5) o.material.roughness = 0.55;
+                }
+              }
+            });
+            this._fitAndPlace(obj);
+            this.modelRoot.add(obj);
+            this._installed = true;
+          },
+          undefined,
+          (err) => {
+            console.warn('GLB load failed', this.opts.glb, err);
+          }
+        );
+      }
+
+      _fitAndPlace(obj) {
+        const bb = new THREE.Box3().setFromObject(obj);
+        const sz = new THREE.Vector3(); bb.getSize(sz);
+        const s = this.opts.fit / Math.max(sz.x, sz.y, sz.z);
+        obj.scale.setScalar(s);
+        obj.updateMatrixWorld(true);
+        const bb2 = new THREE.Box3().setFromObject(obj);
+        const c = new THREE.Vector3(); bb2.getCenter(c);
+        obj.position.x -= c.x * s;
+        obj.position.y -= bb2.min.y;
+        obj.position.z -= c.z * s;
+        // Optional Y offset for better framing
+        obj.position.y += this.opts.modelY * s;
+      }
+
+      _tick() {
+        this._raf = requestAnimationFrame(() => this._tick());
+        // Idle motion (subtle yaw)
+        this.idlePhase += this.opts.idleSpin * 0.016;
+        const idleYaw = Math.sin(this.idlePhase) * 0.18;
+
+        // Smooth chase targets
+        const k = this.hovered ? 0.12 : 0.06;
+        this.yaw += (this.targetYaw + idleYaw - this.yaw) * k;
+        this.pitch += (this.targetPitch - this.pitch) * k;
+
+        this.modelRoot.rotation.y = this.yaw;
+        this.modelRoot.rotation.x = this.pitch;
+
+        this.renderer.render(this.scene, this.camera);
+      }
+    }
+
+    /* ---------- Boot hero + 5 floppies ---------- */
+    const hero3d = document.getElementById('hero3d');
+    const heroView = new ModelView(hero3d, {
+      glb: './models/macintosh_classic.glb',
+      fov: 32,
+      cam: [0.95, 0.55, 1.6],
+      fit: 0.95,
+      parallax: 0.20,
+      idleSpin: 0.25,
+      modelY: 0.05
+    });
+
+    const floppyViews = [];
+    document.querySelectorAll('.floppy-3d').forEach((canvas, idx) => {
+      const proj = projects[idx];
+      if (!proj) return;
+      const v = new ModelView(canvas, {
+        glb: `./models/floppies/floppy_${proj.color}.glb`,
+        fov: 28,
+        cam: [0.5, 0.35, 1.1],
+        fit: 1.55,
+        parallax: 0.35,
+        idleSpin: 0.4,
+        modelY: 0
+      });
+      floppyViews[idx] = v;
+    });
+
+    /* ---------- Side panel + hover wiring ---------- */
+    const panel = document.getElementById('sidePanel');
+    const cover = document.getElementById('sideCover');
+    const title = document.getElementById('sideTitle');
+    const desc  = document.getElementById('sideDesc');
+    const link  = document.getElementById('sideLink');
+    const cards = document.querySelectorAll('.floppy-card');
+
+    let hideTimer = null;
+
+    function showProject(idx) {
+      const p = projects[idx]; if (!p) return;
+      cover.style.background = p.cover;
+      title.textContent = p.title;
+      desc.textContent = p.desc;
+      link.href = p.link;
+      panel.classList.add('visible');
+      panel.setAttribute('aria-hidden', 'false');
+      cards.forEach(c => c.classList.remove('active'));
+      cards[idx].classList.add('active');
+      floppyViews[idx]?.setHovered(true);
+    }
+    function hideProject() {
+      panel.classList.remove('visible');
+      panel.setAttribute('aria-hidden', 'true');
+      cards.forEach(c => c.classList.remove('active'));
+      floppyViews.forEach(v => v?.setHovered(false));
+    }
+
+    cards.forEach((card, i) => {
+      card.addEventListener('mouseenter', () => { clearTimeout(hideTimer); showProject(i); });
+      card.addEventListener('focus',      () => { clearTimeout(hideTimer); showProject(i); });
+      card.addEventListener('mouseleave', () => {
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(() => { hideProject(); }, 220);
+      });
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        const p = projects[i];
+        if (p) window.open(p.link, '_blank', 'noopener');
+      });
+    });
+
+    panel.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+    panel.addEventListener('mouseleave', () => { hideTimer = setTimeout(hideProject, 220); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideProject(); });
+  </script>
+</body>
+</html>
