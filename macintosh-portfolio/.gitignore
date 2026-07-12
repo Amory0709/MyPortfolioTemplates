@@ -17,3 +17,9 @@ preview_v*.html
 snap_*.html
 floppy_palette.html
 floppy_zoom.html
+
+# Legacy / not used in current index.html
+img/
+screenshots/
+textures/
+daz_ref.jpg
